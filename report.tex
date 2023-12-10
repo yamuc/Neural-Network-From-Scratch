@@ -1,0 +1,195 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{indentfirst}
+
+\title{HW 3}
+\author{Gavin Lesher}
+\date{\today}
+\begin{document}
+    \maketitle
+    \clearpage
+
+    \section*{Q1: Prove Bernoulli Naïve Bayes has a linear \\decision boundary}
+        \begin{flalign}
+            \intertext{First, we start with the original inequality:}
+            1 &< \frac{\theta_1 \prod_{i=1}^d \theta_{i1}^{x_i} (1-\theta_{i1})^{1-x_i}}
+                {\theta_0 \prod_{i=1}^d \theta_{i0}^{x_i} (1-\theta_{i0})^{1-x_i}}
+            \\
+            \intertext{Take the log of both sides:}
+            \quad\log (1) &< \log \left(\frac{\theta_1 \prod_{i=1}^d \theta_{i1}^{x_i} (1-\theta_{i1})^{1-x_i}}
+                {\theta_0 \prod_{i=1}^d \theta_{i0}^{x_i} (1-\theta_{i0})^{1-x_i}}\right)
+            \\
+            \intertext{Group like exponents:}
+            0 &< \log\left(\frac{\theta_1}{\theta_0}\right) + 
+                \log\left(\prod_{i=1}^d \frac{\theta_{i1}}{\theta_{i1}}^{x_i} \frac{1-\theta_{i1}}{1-\theta_{i0}}^{1-x_i}\right)
+            \\
+            0 &< \log\left(\frac{\theta_1}{\theta_0}\right) + 
+                \sum_{i=1}^d (x_i)\log\left(\frac{\theta_{i1}}{\theta_{i0}}\right) + 
+                    (1-x_i)\log\left(\frac{1-\theta_{i1}}{1-\theta_{i0}}\right)
+            \\
+            \intertext{Bernoulli Naïve Bayes in $b + \sum_{i=1}^d x_i w_i > 0$ form:}
+            0 &<  \underbrace{\log\left(\frac{\theta_1}{\theta_0}\right) + 
+                \sum_{i=1}^d \log\left(\frac{1-\theta_{i1}}{1-\theta_{i0}}\right)}_b + 
+                \sum_{i=1}^d x_i 
+                    \underbrace{\left(
+                    \log\left(\frac{\theta_{i1}}{\theta_{i0}}\right) -
+                    \log\left(\frac{1-\theta_{i1}}{1-\theta_{i0}}\right)
+                    \right)}_{w_i}
+        \end{flalign}
+
+
+    \section*{Q2: Duplicate Features in Naïve Bayes}
+        \textbf{First, we will simplify $P(y=1|X_1=x_1) > P(y=0|X_1=x_1)$:}
+        \begin{align}
+            P(y=1|X_1=x_1) &> P(y=0|X_1=x_1)\\
+            \intertext{\qquad Using Baye's rule:}
+            \frac{P(X_1=x_1|y=1)P(y=1)}{P(X_1=x_1)} &>\frac{P(X_1=x_1|y=0)P(y=0)}{P(X_1=x_1)}\\
+            \intertext{\qquad Since $P(y=1) = P(y=0)$:}
+            P(X_1=x_1|y=1) &> P(X_1=x_0|y=0) \label{eq:8}
+        \end{align}
+
+
+        \noindent\textbf{ Next, we prove that $P(y=1|X_1=x_1, X_2=x_2) > P(y=1|X_1=x_1)$:}
+        
+        \begin{align}
+            \intertext{\qquad Baye's Rule:}
+            \frac{P(X_1=x_1, X_2=x_2|y=1)P(y=1)}{P(X_1=x_1, X_2=x_2)} 
+                &> \frac{P(X_1=x_1|y=1)P(y=1)}{P(X_1=x_1)} \\
+            \intertext{\qquad With the naïve bayes assumtion of conditional independence:}
+            \frac{P(X_1=x_1|y=1)P(X_2=x_2|y=1)}{P(X_1=x_1, X_2=x_2)} 
+                &> \frac{P(X_1=x_1|y=1)}{P(X_1=x_1)} \\
+            \frac{P(X_2=x_2|y=1)}{P(X_1=x_1|X_2=x_2)}
+                &> \frac{1}{P(X_1=x_1)}\\
+            \intertext{\qquad Expanding the denominators:}
+            \frac{P(X_2=x_2|y=1)}{\sum_y P(X_1=x_1|y)P(X_2=x_2|y)P(y)} 
+                &> \frac{1}{\sum_y P(X_1=x_1|y)P(y)}\\
+            \intertext{\qquad Because $P(X_2=x_2|y)$ is equivalent to $P(X_1=x_1|y)$, we can treat $X_1$ and $X_2$ terms as the same.}
+            \intertext{\qquad \qquad We flip the fractions for easy manipulation first:}
+            \frac{\sum_y P(X_1=x_1|y)}{1}
+                &> \frac{\sum_y P(X_1=x_1|y)P(X_2=x_2|y)}{P(X_2=x_2|y=1)} \\
+            \intertext{\qquad Which expands to:}
+            P(X_1=x_1|y=0) &+ P(X_1=x_1|y=1)
+                > \nonumber\\ 
+                \frac{P(X_1=x_1|y=0)P(X_2=x_2|y=0)}{P(X_2=x_2|y=1)} &+ \frac{P(X_1=x_1|y=1)P(X_2=x_2|y=1)}{P(X_2=x_2|y=1)} \nonumber \\
+            &\nonumber\\
+            P(X_1=x_1|y=0) &> \frac{P(X_1=x_1|y=0)P(X_2=x_2|y=0)}{P(X_2=x_2|y=1)}\nonumber\\
+            &\nonumber\\
+            P(X_2=x_2|y=1) &> P(X_2=x_2|y=0)
+        \end{align}
+        Which is the equivalence we proved in equation \eqref{eq:8}, and proves the original inequality.
+
+    \clearpage
+    \section*{Q4: Learning Rate}
+        The default step size seems to be the best learning rate of all the ones tested. 
+        With the learning rate too small (0.0001), the NN does not make progress on the backpropogation because the changes from the gradient are too small to compound effectively.
+        For the larger step sizes (5 \& 10), The plots are much more jumpy, as the NN overcorrects because of the high step size. 
+        The plot for a step size of 10 shows that with a high enough step size, you really don't make much progress at all.
+        I believe this to be the NN oscilating with the gradient.
+
+        If the max epochs were increased, I would expect the plots for step size 10 and .00001 to not change. 
+        The plot 5 might converge a little bit more, but I find that unlikely, 
+        and the plot for .01 will converge further for sure.
+
+        \textit{All plots can be found in the Appendix}
+
+    \section*{Q5: ReLU’s and Vanishing Gradients}
+        To start, the 5-layer sigmoid trial did not converge, and had only just started to move at the epoch limit. 
+        With a \textit{much} larger epoch limit, it may be able to converge, but I find this unlikely.
+        The 5-layer sigmoid with an increased step size turned out better than expected, getting a validation accuracy of 80\% at max epoch.
+        The chart is very shaky though, which is most likely the bigger step size and layer number "kicking" the weights and biases around.
+        The ReLU preformed very well, and this is to be expected given what we discussed in class about ReLU being (1) faster than sigmoid (2) able to get weights out of the far ends easier.
+
+        I saw an increased preformance for the greater learning rate more than likely because of the "kicking" mentioned earlier. 
+        The step size is able to make larger changes, which might "kick-start" other weights to converge into a more useful value, 
+        though this is mainly speculation.
+
+        As mentioned, the ReLU activation function's advantages allowed it to outpreform the sigmoid undeniably. 
+        If the sigmoid trial was ran with a higher epoch count, it may be able to reach an even better accuracy, as well as having potential by changing the other hyperparameters to suit it better.
+
+    \section*{Q6: Measuring Randomness}
+        \begin{center}
+            \begin{tabular}{|c||c|c|}
+                \hline
+                Seed & Training Accuracy & Validation Accuracy\\
+                 & (\%)& (\%)\\
+                \hline
+                \hline
+                0 & 86.86 & 89.8\\
+                \hline
+                1 & 86.04 & 88.7\\
+                \hline
+                2 & 87.48 & 90.5\\
+                \hline
+                3 & 86.78 & 88.5\\
+                \hline
+                4 & 87.06 & 89.6\\
+                \hline
+                Average & 86.84 & 89.42\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        It appears the randomness has little to no effect on the results of the training, and this data does not change any of my previous answers.
+
+    \section*{Debrief}
+        \subsection*{1.}
+        I spent about 3 hrs. on the math section, and another 3 on the coding (including the time for writing this report).
+
+        \subsection*{2.}
+        I would rate this easy-moderate. The math had a few hiccups, but the coding was light so I found this to be an easier assignment than previous ones.
+
+        \subsection*{3.}
+        I worked alone on this assignment.
+
+        \subsection*{4.}
+        I have about a 90-95\% confidence on this material. Some of the inner workings of backpropogation I'm not super clear on, but overall I have few questions.
+
+
+    \clearpage
+    \section*{Appendix}
+        \begin{figure}[h]
+            \includegraphics[width=\textwidth]{"SS_0001.png"}
+            \caption{Step Size 0.0001}
+        \end{figure}
+        \begin{figure}[h!]
+            \includegraphics[width=\textwidth]{"SS_01.png"}
+            \caption{Step Size 0.01 (Default)}
+        \end{figure}
+        \begin{figure}[t]
+            \includegraphics[width=\textwidth]{"SS_5.png"}
+            \caption{Step Size 5}
+        \end{figure}
+        \begin{figure}[b]
+            \includegraphics[width=\textwidth]{"SS_10.png"}
+            \caption{Step Size 10}
+        \end{figure}
+        \clearpage
+        \begin{figure}[h]
+            \includegraphics[width=\textwidth]{"L_5_Sig.png"}
+            \caption{5-Layer Sigmoid Activation}
+        \end{figure}
+        \begin{figure}[h!]
+            \includegraphics[width=\textwidth]{"L_5_SS_p1.png"}
+            \caption{5-Layer Sigmoid with Step Size 0.1}
+        \end{figure}
+        \begin{figure}[h]
+            \includegraphics[width=\textwidth]{"L_5_ReLU.png"}
+            \caption{5-Layer ReLU Activation}
+        \end{figure}
+        \clearpage
+
+
+
+
+
+    
+            
+
+
+
+
+
+
+\end{document}
